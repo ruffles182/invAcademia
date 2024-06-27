@@ -15,6 +15,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\IconEntry;
 
 class ProductResource extends Resource
 {
@@ -56,14 +59,44 @@ class ProductResource extends Resource
                     ->relationship('category','name')
                     ->required()
                     ->label('Categoría'),
-                Forms\Components\Toggle::make('active')
-                    ->required()
-                    ->label('Activo')
-                    ->default(True),
                 Textarea::make('description')
                     ->maxLength(255)
                     ->default(null)
                     ->label('Descripción'),
+                Forms\Components\Toggle::make('active')
+                    ->required()
+                    ->label('Activo')
+                    ->default(True),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('name')
+                    ->label('Nombre'),
+                TextEntry::make('barcode')
+                    ->label('Código de barras'),
+                TextEntry::make('quantity')
+                    ->label('Cantidad'),
+                TextEntry::make('unit.name')
+                    ->label('Unidad'),
+                TextEntry::make('category.name')
+                    ->label('Categoría'),
+                TextEntry::make('description')
+                    ->label('Descripción'),
+                IconEntry::make('active')
+                    ->icon(fn (bool $state): string => match ($state) {
+                        false => 'heroicon-o-x-circle',
+                        true => 'heroicon-o-check-circle',
+                    })
+                    ->color(fn (bool $state): string => match ($state) {
+                        false => 'danger',
+                        true => 'success',
+                    })
+                    ->label('Activo'),
+
             ]);
     }
 
@@ -124,7 +157,7 @@ class ProductResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                //Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

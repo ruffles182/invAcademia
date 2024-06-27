@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\TextEntry;
 
 class MovementResource extends Resource
 {
@@ -68,14 +70,76 @@ class MovementResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('type')
+                ->color('success')
+                    ->label('Tipo')
+                    ->color(function ($state) {
+                        $color = '';
+                        switch ($state) {
+                            case 'entrada':
+                                $color = 'success'; // Color verde para "entrada"
+                                break;
+                            case 'salida':
+                                $color = 'danger'; // Color rojo para "salida"
+                                break;
+                            case 'ajuste':
+                                $color = 'primary'; // Color azul para "ajuste"
+                                break;
+                            default:
+                                // Si no coincide con ninguno de los tipos, no aplicamos color
+                                break;
+                        }
+                
+                        // Devolvemos el estado con el estilo de color
+                        return $color;
+                    })
+                    ->formatStateUsing(fn ($state) => ucfirst($state)),
+                TextEntry::make('product.name')
+                    ->label('Artículo'),
+                TextEntry::make('quantity')
+                    ->label('Cantidad'),
+                TextEntry::make('person')
+                    ->label('Persona'),
+                TextEntry::make('notes')
+                    ->label('Notas'),
+            ]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
             ->defaultPaginationPageOption(50)
             ->columns([
-                Tables\Columns\TextColumn::make('type'),
-                Tables\Columns\TextColumn::make('product_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('type')
+                ->label('Tipo')
+                ->color(function ($state) {
+                    $color = '';
+                    switch ($state) {
+                        case 'entrada':
+                            $color = 'success'; // Color verde para "entrada"
+                            break;
+                        case 'salida':
+                            $color = 'danger'; // Color rojo para "salida"
+                            break;
+                        case 'ajuste':
+                            $color = 'primary'; // Color azul para "ajuste"
+                            break;
+                        default:
+                            // Si no coincide con ninguno de los tipos, no aplicamos color
+                            break;
+                    }
+            
+                    // Devolvemos el estado con el estilo de color
+                    return $color;
+                })
+                ->formatStateUsing(fn ($state) => ucfirst($state)),
+                Tables\Columns\TextColumn::make('product.name')
+                ->label('Artículo')    
+                ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric()
@@ -132,4 +196,13 @@ class MovementResource extends Resource
     {
         return 'Movimientos';
     }
+    // public static function getTableColumns(): array
+    // {
+    //     return [
+    //         TextColumn::make('type')
+    //             ->url(null), // Esto evita que la columna sea un enlace
+    //         // Otras columnas...
+    //     ];
+    // }
+    
 }
